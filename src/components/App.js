@@ -1,65 +1,66 @@
-import "regenerator-runtime/runtime";
-import React, { useEffect, useState } from "react";
-import axios from "axios"; // Import Axios
-import "./../styles/App.css";
+import React, { useState } from "react";
+import './../styles/App.css';
 
 const App = () => {
-  const [data, setdata] = useState([]);
-  const [t, sett] = useState(false);
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let response = await axios.get("https://reqres.in/api/users");
-        console.log(response.data.data); // Axios returns the data inside 'data'
-        setdata(response.data.data);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-      }
-    };
-    fetchData();
-  }, []);
+  function btnClickHandler() {
+    setLoading(true); // Start loading
+    fetch("https://reqres.in/api/users")
+      .then(rawData => rawData.json())
+      .then(json => {
+        setData(json.data);
+        setLoading(false); // Stop loading
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setLoading(false); // Stop loading in case of error
+      });
+  }
 
-  function abc() {
-    sett(!t);
+  if(!data.length)
+  {
+    return (
+      <div>
+
+      <button className="btn" onClick={btnClickHandler}>
+        {loading ? "Loading..." : "Get User List"}
+      </button>
+
+      <p>No data found to display.</p>
+
+      <table style={{height:"100px", width:"300px"}}>
+
+      </table>
+
+      </div>
+
+    )
   }
 
   return (
     <div>
-      <div>
-        <h1>Blue Whales</h1>
-        <button onClick={abc}> Get User List</button>
-      </div>
+      <button className="btn" onClick={btnClickHandler}>
+        {loading ? "Loading..." : "Get User List"}
+      </button>
+
       <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Avatar</th>
-          </tr>
-        </thead>
-        {t ? (
-          <tbody>
-            {data.map((e) => {
-              return (
-                <tr key={e.id}>
-                  <td>{e.first_name}</td>
-                  <td>{e.last_name}</td>
-                  <td>{e.email}</td>
-                  <td>
-                    <img src={e.avatar} alt="avatar" />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        ) : (
-          <div>no data found</div>
-        )}
+        <tbody>
+       
+            {data.map((item, index) => (
+              <tr key={index}>
+                <td>{item.first_name}</td>
+                <td>{item.last_name}</td>
+                <td>{item.email}</td>
+                <td><img src={item.avatar} alt="User Avatar" /></td>
+              </tr>
+            ))}
+          
+        </tbody>
       </table>
     </div>
   );
-};
+}
 
 export default App;
